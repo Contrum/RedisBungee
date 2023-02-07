@@ -39,15 +39,17 @@ public class PlayerUtils {
 
     public static void createPlayer(UUID uuid, UnifiedJedis unifiedJedis, String currentServer, InetAddress hostname, boolean fireEvent) {
         final boolean isKickedFromOtherLocation = isKickedOtherLocation(uuid.toString(), unifiedJedis);
-        Map<String, String> playerData = new HashMap<>(4);
-        playerData.put("online", "0");
-        playerData.put("ip", hostname.getHostName());
-        playerData.put("proxy", AbstractRedisBungeeAPI.getAbstractRedisBungeeAPI().getProxyId());
-        if (currentServer != null) {
-            playerData.put("server", currentServer);
-        }
+        String key = "player:" + uuid;
+
         unifiedJedis.sadd("proxy:" + AbstractRedisBungeeAPI.getAbstractRedisBungeeAPI().getProxyId() + ":usersOnline", uuid.toString());
-        unifiedJedis.hset("player:" + uuid, playerData);
+        unifiedJedis.hset(key, "online", "0");
+        unifiedJedis.hset(key, "ip", hostname.getHostName());
+        unifiedJedis.hset(key, "proxy", AbstractRedisBungeeAPI.getAbstractRedisBungeeAPI().getProxyId());
+
+        if(currentServer != null) {
+            unifiedJedis.hset(key, "server", currentServer);
+        }
+
         if (fireEvent && !isKickedFromOtherLocation) {
             playerJoinPayload(uuid, unifiedJedis, hostname);
         }

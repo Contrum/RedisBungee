@@ -205,7 +205,9 @@ public final class UUIDTranslator {
     public void persistInfo(String name, UUID uuid, UnifiedJedis unifiedJedis) {
         addToMaps(name, uuid);
         String json = gson.toJson(uuidToNameMap.get(uuid));
-        unifiedJedis.hset("uuid-cache", ImmutableMap.of(name.toLowerCase(), json, uuid.toString(), json));
+
+        unifiedJedis.hset("uuid-cache", name.toLowerCase(), json);
+        unifiedJedis.hset("uuid-cache", uuid.toString(), json);
     }
 
 
